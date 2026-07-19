@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Photo Slider & Collection</title>
+
+    <style>
+        /* ---------- RESET & BASE ---------- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fb;
+            color: #1e293b;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 2.4rem;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 0.25rem;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #64748b;
+            margin-bottom: 2rem;
+            font-size: 1.05rem;
+        }
+
+        hr {
+            border: none;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #cbd5e1, transparent);
+            margin: 2.5rem 0;
+        }
+
+        /* ---------- SECTION LABELS ---------- */
+        .section-label {
+            font-size: 1.6rem;
+            font-weight: 500;
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+        }
+
+        .section-label span {
+            background: #e2e8f0;
+            padding: 0.15rem 0.8rem;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #475569;
+        }
+
+        /* ========================================
+                   SLIDER / CAROUSEL
+                   ======================================== */
+        .slider-wrapper {
+            position: relative;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.25);
+            background: #0f172a;
+        }
+
+        .slider-track {
+            display: flex;
+            transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            will-change: transform;
+        }
+
+        .slide {
+            flex: 0 0 100%;
+            height: 460px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 600;
+            color: #fff;
+            position: relative;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .slide::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: brightness(0.8);
+            pointer-events: none;
+        }
+
+        .slide-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            padding: 1.5rem;
+            text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
+        }
+
+        .slide-content h2 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .slide-content p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-top: 0.4rem;
+            font-weight: 400;
+        }
+
+        .slider-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(8px);
+            border: none;
+            color: #fff;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 1.6rem;
+            cursor: pointer;
+            z-index: 10;
+            transition: background 0.25s, transform 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .slider-btn:hover {
+            background: rgba(255, 255, 255, 0.35);
+            transform: translateY(-50%) scale(1.05);
+        }
+
+        .slider-btn:active {
+            transform: translateY(-50%) scale(0.95);
+        }
+
+        .slider-btn.prev {
+            left: 18px;
+        }
+        .slider-btn.next {
+            right: 18px;
+        }
+
+        .dots-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            padding: 1.2rem 0 0.6rem;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #cbd5e1;
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+            padding: 0;
+        }
+
+        .dot.active {
+            background: #1e293b;
+            transform: scale(1.2);
+        }
+
+        .dot:hover {
+            background: #94a3b8;
+        }
+
+        .slider-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1.2rem;
+            margin-top: 0.6rem;
+            flex-wrap: wrap;
+        }
+
+        .slider-controls button {
+            background: transparent;
+            border: 1.5px solid #cbd5e1;
+            padding: 0.4rem 1.2rem;
+            border-radius: 40px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            color: #1e293b;
+            transition: all 0.25s;
+            background: #fff;
+        }
+
+        .slider-controls button:hover {
+            background: #1e293b;
+            color: #fff;
+            border-color: #1e293b;
+        }
+
+        .slider-controls .indicator {
+            font-size: 0.9rem;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        /* ========================================
+                   GALLERY FILTER
+                   ======================================== */
+        .filter-bar {
+            display: flex;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+        }
+
+        .filter-btn {
+            background: #f1f5f9;
+            border: none;
+            padding: 0.45rem 1.2rem;
+            border-radius: 40px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #334155;
+            font-size: 0.9rem;
+        }
+
+        .filter-btn:hover {
+            background: #e2e8f0;
+        }
+
+        .filter-btn.active {
+            background: #1e293b;
+            color: #fff;
+        }
+
+        /* ========================================
+                   GALLERY GRID
+                   ======================================== */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1.25rem;
+            margin-top: 0.5rem;
+        }
+
+        .gallery-item {
+            position: relative;
+            border-radius: 16px;
+            overflow: hidden;
+            aspect-ratio: 1 / 1;
+            cursor: pointer;
+            box-shadow: 0 8px 18px -6px rgba(0, 0, 0, 0.12);
+            transition: transform 0.25s, box-shadow 0.3s;
+            background: #e2e8f0;
+        }
+
+        .gallery-item:hover {
+            transform: translateY(-5px) scale(1.01);
+            box-shadow: 0 16px 30px -8px rgba(0, 0, 0, 0.2);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.4s;
+        }
+
+        .gallery-item:hover img {
+            transform: scale(1.04);
+        }
+
+        .gallery-item .overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(0deg, rgba(0, 0, 0, 0.6) 0%, transparent 60%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 1rem;
+            color: #fff;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .gallery-item:hover .overlay {
+            opacity: 1;
+        }
+
+        .gallery-item .category-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            padding: 0.2rem 0.7rem;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            z-index: 2;
+        }
+
+        /* ========================================
+                   LIGHTBOX
+                   ======================================== */
+        .lightbox {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(6px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+            padding: 2rem;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .lightbox.open {
+            display: flex;
+        }
+
+        .lightbox-content {
+            max-width: 80vw;
+            max-height: 85vh;
+            border-radius: 16px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
+            object-fit: contain;
+            background: #0f172a;
+            animation: scaleIn 0.3s ease;
+        }
+
+        .lightbox-close {
+            position: fixed;
+            top: 28px;
+            right: 36px;
+            background: rgba(255, 255, 255, 0.12);
+            border: none;
+            color: #fff;
+            font-size: 2.4rem;
+            cursor: pointer;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.25s;
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+        }
+
+        .lightbox-close:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0.9);
+                opacity: 0.5;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* ========================================
+                   RESPONSIVE
+                   ======================================== */
+        @media (max-width: 700px) {
+            .slide {
+                height: 320px;
+            }
+            .slide-content h2 {
+                font-size: 2rem;
+            }
+            .slider-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2rem;
+            }
+            .slider-btn.prev {
+                left: 10px;
+            }
+            .slider-btn.next {
+                right: 10px;
+            }
+            .gallery-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 0.9rem;
+            }
+            .lightbox-content {
+                max-width: 95vw;
+                max-height: 70vh;
+            }
+            .lightbox-close {
+                top: 16px;
+                right: 20px;
+                width: 44px;
+                height: 44px;
+                font-size: 1.8rem;
+            }
+            h1 {
+                font-size: 1.8rem;
+            }
+        }
+
+        @media (max-width: 450px) {
+            .slide {
+                height: 250px;
+            }
+            .slide-content h2 {
+                font-size: 1.5rem;
+            }
+            .gallery-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.7rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <!-- ===== HEADER ===== -->
+        <h1>📸 Photo Slider &amp; Collection</h1>
+        <p class="subtitle">Childhood · Family · Wedding — all your memories in one place</p>
+
+        <!-- ==========================================
+        SLIDER
+        ========================================== -->
+        <div class="section-label">
+            🎠 Slider
+            <span>auto‑play</span>
+        </div>
+
+        <div class="slider-wrapper">
+            <div class="slider-track" id="sliderTrack">
+                <!-- slides injected by JS -->
+            </div>
+
+            <button class="slider-btn prev" id="prevBtn" aria-label="Previous">‹</button>
+            <button class="slider-btn next" id="nextBtn" aria-label="Next">›</button>
+        </div>
+
+        <div class="dots-container" id="dotsContainer"></div>
+
+        <div class="slider-controls">
+            <button id="toggleAutoBtn">⏸ Pause</button>
+            <span class="indicator" id="slideIndicator">1 / 4</span>
+        </div>
+
+        <!-- ==========================================
+        GALLERY WITH CATEGORY FILTER
+        ========================================== -->
+        <hr />
+
+        <div class="section-label">
+            🖼️ Collection
+            <span id="galleryCount">150 photos</span>
+        </div>
+
+        <div class="filter-bar" id="filterBar">
+            <button class="filter-btn active" data-category="all">All</button>
+            <button class="filter-btn" data-category="Childhood">👶 Childhood</button>
+            <button class="filter-btn" data-category="Family">👨‍👩‍👧‍👦 Family</button>
+            <button class="filter-btn" data-category="Wedding">💍 Wedding</button>
+        </div>
+
+        <div class="gallery-grid" id="galleryGrid">
+            <!-- items injected by JS -->
+        </div>
+
+    </div>
+
+    <!-- ==========================================
+    LIGHTBOX
+    ========================================== -->
+    <div class="lightbox" id="lightbox">
+        <button class="lightbox-close" id="lightboxClose" aria-label="Close">✕</button>
+        <img class="lightbox-content" id="lightboxImg" src="" alt="Enlarged view" />
+    </div>
+
+    <!-- ==========================================
+    JAVASCRIPT
+    ========================================== -->
+    <script>
+        (function() {
+            'use strict';
+
+            // =============================================
+            // 1. BUILD IMAGE LIST FROM LOCAL FILES
+            //    images/1.jpg  …  images/58.jpg
+            //    images/59.JPG …  images/150.JPG
+            // =============================================
+            const allImages = [];
+
+            for (let i = 1; i <= 150; i++) {
+                let ext = '.jpg';
+                if (i >= 59) ext = '.JPG';
+
+                // assign category based on number ranges
+                let category = '';
+                if (i <= 50) category = 'Childhood';
+                else if (i <= 100) category = 'Family';
+                else category = 'Wedding';
+
+                allImages.push({
+                    id: i,
+                    src: `images/${i}${ext}`,
+                    alt: `Photo ${i}`,
+                    category: category
+                });
+            }
+
+            // =============================================
+            // 2. SLIDER (use first 4 images)
+            // =============================================
+            const sliderImages = allImages.slice(0, 4);
+            const track = document.getElementById('sliderTrack');
+            const dotsContainer = document.getElementById('dotsContainer');
+            const indicator = document.getElementById('slideIndicator');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const toggleBtn = document.getElementById('toggleAutoBtn');
+
+            // Build slides
+            sliderImages.forEach((img, idx) => {
+                const slide = document.createElement('div');
+                slide.className = 'slide';
+                slide.style.backgroundImage = `url('${img.src}')`;
+                slide.innerHTML = `
+                    <div class="slide-content">
+                        <h2>${img.alt}</h2>
+                        <p>${img.category}</p>
+                    </div>
+                `;
+                track.appendChild(slide);
+            });
+
+            const slides = track.querySelectorAll('.slide');
+            const totalSlides = slides.length;
+
+            // Build dots
+            for (let i = 0; i < totalSlides; i++) {
+                const dot = document.createElement('button');
+                dot.className = 'dot' + (i === 0 ? ' active' : '');
+                dot.dataset.index = i;
+                dot.addEventListener('click', () => goToSlide(i));
+                dotsContainer.appendChild(dot);
+            }
+            const dots = dotsContainer.querySelectorAll('.dot');
+
+            let currentIndex = 0;
+            let autoPlayInterval = null;
+            let isAutoPlaying = true;
+
+            function updateSlider() {
+                track.style.transform = `translateX(-${currentIndex * 100}%)`;
+                dots.forEach((dot, idx) => {
+                    dot.classList.toggle('active', idx === currentIndex);
+                });
+                indicator.textContent = `${currentIndex + 1} / ${totalSlides}`;
+            }
+
+            function goToSlide(index) {
+                if (index < 0) index = totalSlides - 1;
+                if (index >= totalSlides) index = 0;
+                currentIndex = index;
+                updateSlider();
+            }
+
+            function nextSlide() { goToSlide(currentIndex + 1); }
+
+            function prevSlide() { goToSlide(currentIndex - 1); }
+
+            function startAutoPlay() {
+                if (autoPlayInterval) clearInterval(autoPlayInterval);
+                autoPlayInterval = setInterval(nextSlide, 4000);
+                isAutoPlaying = true;
+                toggleBtn.textContent = '⏸ Pause';
+            }
+
+            function stopAutoPlay() {
+                if (autoPlayInterval) {
+                    clearInterval(autoPlayInterval);
+                    autoPlayInterval = null;
+                }
+                isAutoPlaying = false;
+                toggleBtn.textContent = '▶ Play';
+            }
+
+            function toggleAutoPlay() {
+                if (isAutoPlaying) stopAutoPlay();
+                else startAutoPlay();
+            }
+
+            function resetAutoPlay() {
+                if (isAutoPlaying) {
+                    stopAutoPlay();
+                    startAutoPlay();
+                }
+            }
+
+            prevBtn.addEventListener('click', () => { prevSlide();
+                resetAutoPlay(); });
+            nextBtn.addEventListener('click', () => { nextSlide();
+                resetAutoPlay(); });
+            toggleBtn.addEventListener('click', toggleAutoPlay);
+
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowLeft') { prevSlide();
+                    resetAutoPlay(); }
+                if (e.key === 'ArrowRight') { nextSlide();
+                    resetAutoPlay(); }
+            });
+
+            updateSlider();
+            startAutoPlay();
+
+            // =============================================
+            // 3. GALLERY with category filter
+            // =============================================
+            const galleryGrid = document.getElementById('galleryGrid');
+            const filterBar = document.getElementById('filterBar');
+            const galleryCount = document.getElementById('galleryCount');
+            const lightbox = document.getElementById('lightbox');
+            const lightboxImg = document.getElementById('lightboxImg');
+            const lightboxClose = document.getElementById('lightboxClose');
+
+            let currentCategory = 'all';
+
+            function renderGallery(category) {
+                const filtered = category === 'all' ?
+                    allImages :
+                    allImages.filter(img => img.category === category);
+
+                galleryCount.textContent = `${filtered.length} photos`;
+
+                galleryGrid.innerHTML = '';
+                filtered.forEach((item) => {
+                    const div = document.createElement('div');
+                    div.className = 'gallery-item';
+
+                    const img = document.createElement('img');
+                    img.src = item.src;
+                    img.alt = item.alt;
+                    img.loading = 'lazy';
+
+                    const badge = document.createElement('div');
+                    badge.className = 'category-badge';
+                    badge.textContent = item.category;
+
+                    const overlay = document.createElement('div');
+                    overlay.className = 'overlay';
+                    overlay.textContent = item.alt;
+
+                    div.appendChild(img);
+                    div.appendChild(badge);
+                    div.appendChild(overlay);
+
+                    div.addEventListener('click', () => {
+                        lightboxImg.src = item.src;
+                        lightboxImg.alt = item.alt;
+                        lightbox.classList.add('open');
+                        document.body.style.overflow = 'hidden';
+                        // pause slider while lightbox is open
+                        if (isAutoPlaying) stopAutoPlay();
+                    });
+
+                    galleryGrid.appendChild(div);
+                });
+            }
+
+            // Filter buttons
+            filterBar.addEventListener('click', (e) => {
+                const btn = e.target.closest('.filter-btn');
+                if (!btn) return;
+                const category = btn.dataset.category;
+                if (category === currentCategory) return;
+
+                filterBar.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentCategory = category;
+                renderGallery(category);
+            });
+
+            // Initial render
+            renderGallery('all');
+
+            // =============================================
+            // 4. LIGHTBOX controls
+            // =============================================
+            function closeLightbox() {
+                lightbox.classList.remove('open');
+                document.body.style.overflow = '';
+                // restart auto-play if it was on before
+                if (!isAutoPlaying && autoPlayInterval === null) {
+                    // only restart if we had stopped it for the lightbox
+                    // we use a flag to remember previous state
+                }
+            }
+
+            lightboxClose.addEventListener('click', closeLightbox);
+
+            lightbox.addEventListener('click', (e) => {
+                if (e.target === lightbox) closeLightbox();
+            });
+
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') closeLightbox();
+            });
+
+            // When lightbox opens, we already stop auto-play in the click handler.
+            // When it closes, we restore auto-play if it was previously on.
+            let wasPlayingBeforeLightbox = true;
+
+            // Override the click on gallery items to store state
+            const originalOpen = (item) => {
+                // we already handle it above, but we need to store state
+            };
+
+            // We'll use a mutation observer to detect when lightbox opens/closes
+            const lightboxObserver = new MutationObserver(() => {
+                if (lightbox.classList.contains('open')) {
+                    wasPlayingBeforeLightbox = isAutoPlaying;
+                    if (isAutoPlaying) stopAutoPlay();
+                } else {
+                    // when closed, restart if it was playing before
+                    if (wasPlayingBeforeLightbox && !isAutoPlaying) {
+                        startAutoPlay();
+                    }
+                }
+            });
+            lightboxObserver.observe(lightbox, { attributes: true, attributeFilter: ['class'] });
+
+            // Also handle the close button and overlay click to restore
+            // The observer already handles it.
+
+        })();
+    </script>
+
+</body>
+</html>
