@@ -725,9 +725,11 @@
             'use strict';
 
             // =============================================================
-            // 1. DATA
+            // 1. DATA – using images from external GitHub repo
             // =============================================================
             const allImages = [];
+            const baseUrl = 'https://raw.githubusercontent.com/kalkidangetaneh28-cell/Adi/main/images/';
+
             for (let i = 1; i <= 150; i++) {
                 const ext = (i >= 59) ? '.JPG' : '.jpg';
                 let category = '';
@@ -736,7 +738,7 @@
                 else category = 'Wedding';
                 allImages.push({
                     id: i,
-                    src: `images/${i}${ext}`,
+                    src: baseUrl + i + ext,
                     alt: `Photo ${i}`,
                     category: category
                 });
